@@ -11,10 +11,13 @@ namespace TaskExcecutorProcess
     public class CertTool
     {
         public static string passwCert;
-        public static string patchP12File;
-        public static string patchPemFile;
+        public static string pathP12File;
+        public static string pathPemFile;
         private static string KeytoolPath = Path.Combine(GetJavaInstallationPath(), "keytool");
-        
+        /// <summary>
+        /// Выявляем фактическую директория приложения KeyTool
+        /// </summary>
+        /// <returns></returns>
         public static string GetJavaInstallationPath()
         {
             string environmentPath = Environment.GetEnvironmentVariable("JAVA_HOME");
@@ -54,15 +57,15 @@ namespace TaskExcecutorProcess
         }
         public static void CreateNewKey(string pathJksFile, string crtPathFile, string csrPathFile = null)
         { 
-            string compare = CertTool.GetCRC(csrPathFile,crtPathFile);
+            string compare = CertTool.CompareCRC(csrPathFile,crtPathFile);
             Console.WriteLine(compare);
             if (compare.Substring(0,4) != "Ошибка сверки контрольных сумм.")
             {                
                 //получаем алиас из файла
                 var aliasName = GetAliasKeyTool(pathJksFile);
                 //генерируем P12 и остальное
-                convertJksInPkcs12(pathJksFile, aliasName);
-                CertTool.newWorckKeyP12(crtPathFile);
+                ConvertJksInPkcs12(pathJksFile, aliasName);
+                CertTool.pathNewKeyP12(crtPathFile);
             }
         }
 
@@ -96,27 +99,27 @@ namespace TaskExcecutorProcess
                 ConsoleHelper.ShowError(output);
             else
             {                              
-                Console.WriteLine(GetCRC(csrFilePath));
+                Console.WriteLine(CompareCRC(csrFilePath));
             }
 
         }
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="patchCsr">Пусть до -.CSR</param>
-        /// <param name="patchCrt">Пусть до -.CRT</param>
+        /// <param name="pathCsr">Пусть до -.CSR</param>
+        /// <param name="pathCrt">Пусть до -.CRT</param>
         /// <returns>Сверка контрольных сумм двух сертефикатов.Если перепутаешь порядок, контрольная сумма не сойдётся</returns>
-        public static string GetCRC(string patchCsr, string patchCrt = null)
+        public static string CompareCRC(string pathCsr, string pathCrt = null)
         {
-            if (String.IsNullOrEmpty(patchCrt))
+            if (String.IsNullOrEmpty(pathCrt))
             {
-                var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl req -noout -modulus -in {patchCsr} | openssl md5\"");
+                var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl req -noout -modulus -in {pathCsr} | openssl md5\"");
                 return output;
             }
             else
             {
-                var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl req -noout -modulus -in {patchCsr} | openssl md5\"");
-                var output2 = Execute.ExecuteExternal("pwsh", $"-c \"openssl x509 -noout -modulus -in {patchCrt} | openssl md5\"");
+                var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl req -noout -modulus -in {pathCsr} | openssl md5\"");
+                var output2 = Execute.ExecuteExternal("pwsh", $"-c \"openssl x509 -noout -modulus -in {pathCrt} | openssl md5\"");
                 //По идее это УЖЕ не нужно, но бли-и-и-ин. 
                 var stdin1 = Regex.Match(output,"\\(stdin\\)= (\\w{32})");
                 /* 
@@ -126,13 +129,10 @@ namespace TaskExcecutorProcess
                 добавить начало(^) и конец($)  ^\((?P<Name>\w+)\)= (?P<Value>\w{32})$
                 */
                 var stdin2 = Regex.Match(output2,"\\(stdin\\)= (\\w{32})");            
-                if (stdin1.Groups[1].Value != stdin2.Groups[1].Value) return "Бяда, Контрольная сумма не сходится \n\n Контрольная сумма " + NameFile(patchCsr) + " = " 
-                                                                    + stdin1.Groups[1].Value +"\n Контрольная сумма " + NameFile(patchCrt) + " = " + stdin2.Groups[1].Value;                 
+                if (stdin1.Groups[1].Value != stdin2.Groups[1].Value) return "Бяда, Контрольная сумма не сходится \n\n Контрольная сумма " + NameFile(pathCsr) + " = " 
+                                                                    + stdin1.Groups[1].Value +"\n Контрольная сумма " + NameFile(pathCrt) + " = " + stdin2.Groups[1].Value;                 
                 else return "Контрольная сумма = ОК\n";
-            }
-            //if (output.Contains("error"))
-            //    ConsoleHelper.ShowError(output);            
-            
+            }            
         }
 
 /// <summary>
@@ -140,7 +140,7 @@ namespace TaskExcecutorProcess
 /// </summary>
 /// <param name="pathJksFile"></param>
 /// <param name="aliasName"></param>
-        public static void convertJksInPkcs12(string pathJksFile, string aliasName)
+        public static void ConvertJksInPkcs12(string pathJksFile, string aliasName)
         {
             Console.WriteLine("Данные для формирования -.p12 получены = ОК\n");            
             var patchP12File = Path.ChangeExtension(pathJksFile, "p12");
@@ -153,8 +153,8 @@ namespace TaskExcecutorProcess
             else if (System.IO.File.Exists(patchP12File))
             {
                 Console.WriteLine("Файл сертефиката -.p12 создан успешно = ОК\n");
-                CertTool.patchP12File = patchP12File;
-                CertTool.convertKeyPem();
+                CertTool.pathP12File = patchP12File;
+                CertTool.ConvertKeyPem();
             }
             else
             {
@@ -162,12 +162,12 @@ namespace TaskExcecutorProcess
             }            
         }
         //Знаю, что неправильно. похоже придётся снова всё переписывать. Пока сделаем просто реализацию.
-        public static void convertKeyPem()
+        public static void ConvertKeyPem()
         {
-            CertTool.patchPemFile = Path.ChangeExtension(CertTool.patchP12File, "pem");
-            var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl pkcs12 -passin pass:{passwCert} -in {CertTool.patchP12File} -nodes -nocerts -out {CertTool.patchPemFile}  \"");
+            CertTool.pathPemFile = Path.ChangeExtension(CertTool.pathP12File, "pem");
+            var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl pkcs12 -passin pass:{passwCert} -in {CertTool.pathP12File} -nodes -nocerts -out {CertTool.pathPemFile}  \"");
                 if (output.Contains("error")) ConsoleHelper.ShowError(output); 
-                 else if (System.IO.File.Exists(CertTool.patchPemFile))
+                 else if (System.IO.File.Exists(CertTool.pathPemFile))
             {
                 Console.WriteLine("Файл сертефиката -.pem создан успешно = ОК\n");
             }
@@ -176,12 +176,12 @@ namespace TaskExcecutorProcess
                 Console.WriteLine("Неизвестная ошибка. Файл -.pem не создан. Начинай дебажить = FAIL\n");
             }                           
         }
-        public static void newWorckKeyP12(string patchCRT)
+        public static void pathNewKeyP12(string pathCRT)
         {
-            var newWorckKeyP12 = Path.ChangeExtension(CertTool.patchPemFile, "new.p12");
-            var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl pkcs12 -passout pass:{passwCert} -export -out {newWorckKeyP12} -inkey {CertTool.patchPemFile} -in {patchCRT}\"");
+            var pathNewKeyP12 = Path.ChangeExtension(CertTool.pathPemFile, "new.p12");
+            var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl pkcs12 -passout pass:{passwCert} -export -out {pathNewKeyP12} -inkey {CertTool.pathPemFile} -in {pathCRT}\"");
             if (output.Contains("error")) ConsoleHelper.ShowError(output); 
-                 else if (System.IO.File.Exists(newWorckKeyP12))
+                 else if (System.IO.File.Exists(pathNewKeyP12))
             {
                 Console.WriteLine("Файл сертефиката -.new.p12 создан успешно = ОК\n");
             }

@@ -50,9 +50,9 @@ namespace TaskExcecutorProcess
                     {
                         string oldCrtPathFile = args[1];
                         string newCrtPathFile = args[2];
-                        Console.WriteLine(CertTool.GetCRC(oldCrtPathFile));
-                        Console.WriteLine(CertTool.GetCRC(newCrtPathFile));
-                        Console.WriteLine(CertTool.GetCRC(oldCrtPathFile,newCrtPathFile));
+                        Console.WriteLine(CertTool.CompareCRC(oldCrtPathFile));
+                        Console.WriteLine(CertTool.CompareCRC(newCrtPathFile));
+                        Console.WriteLine(CertTool.CompareCRC(oldCrtPathFile,newCrtPathFile));
                     } 
                 else ConsoleHelper.ShowHelp();
             }
