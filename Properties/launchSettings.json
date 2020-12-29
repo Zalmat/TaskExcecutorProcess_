@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TaskExcecutorProcess": {
+      "commandName": "Project",
+      "commandLineArgs": "766.jks"
+    }
+  }
+}
