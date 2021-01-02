@@ -43,3 +43,16 @@ MyProgram GetP12 <jksPath> <passwd> <crtPath> <csrPath>
 ```bash */
 dotnet tool install --global PowerShell --version 7.0.3
 ```
+***
+**Особенности для Windows**
+
+Для работы приложения требуется:
+1. [OpenSSL](https://slproweb.com/products/Win32OpenSSL.html)
+>FULL Version.
+>Рекомендуется устанавливать OpenSSL вне вашей системной директории Windows.
+2. [Java Keytool](https://www.java.com/ru/download/)
+>Исполняемый файл утилиты распространяется вместе с Java SDK (или JRE), поэтому, если у вас установлен SDK, значит она у вас также будет предустановлена.
+Исполняемый файл называется keytool. Чтобы выполнить его, откройте командную строку (cmd, console, shell и т.д.). и измените текущий каталог на каталог bin в каталоге установки Java SDK. Введите keytool, а затем нажмите клавишу Enter. 
+>Пример: C:\Program Files\Java\jdk1.8.0_111\bin>keytool
+3. Установленный PowerShell
+
