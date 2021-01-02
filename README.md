@@ -13,14 +13,27 @@
 ***
 **Использование:**
 
-Сформирует *.csr
+Формируем *.csr
  ```bash */
- MyProgram -j [путь до JKS файла] [Пароль]
+ MyProgram GetCSR <jksPath> <passwd>
  ```
-Сформирует *.new.p12
+| Option | Description |
+| ------ | ------ |
+| jksPath* (-j) | -путь до JKS файла |
+| passwd* (-p) | -Пароль |
+ 
+Формируем из CRT и нашего исходника *.new.p12
 ```bash */
-MyProgram -c [путь до JKS файла] [Пароль] [путь до CRT файла ключа] [путь до CSR файла для сверки]
+MyProgram GetP12 <jksPath> <passwd> <crtPath> <csrPath> 
 ```
+| Option | Description |
+| ------ | ------ |
+| jksPath* (-j) | -путь до JKS файла |
+| passwd* (-p) | -Пароль |
+| crtPath* (-c) | -путь до CRT файла ключа |
+| csrPath* (-cs) | путь до CSR файла для сверки |
+
+
 
 **НЮАНС:** *Пробелы в названии папок не поддерживаются внешними ресурсами*
 
