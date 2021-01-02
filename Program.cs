@@ -6,7 +6,7 @@ namespace TaskExcecutorProcess
 [ArgExceptionBehavior(ArgExceptionPolicy.StandardExceptionHandling)]
 public class MyArgs
 {
-    [HelpHook, ArgShortcut("-?"), ArgDescription("Показать помощь\nНЮАНС: Пробелы в названии папок не поддерживаются внешними ресурсами\nСсылка на исходник: https://github.com/Zalmat/TaskExcecutorProcess")]
+    [HelpHook, ArgShortcut("-?"), ArgDescription("Показать помощь\nНЮАНС: Пробелы в названии папок не поддерживаются внешними ресурсами\nСсылка на исходник: https://github.com/Zalmat/TaskExcecutorProcess_")]
     public bool Help { get; set; }
     
      [ArgActionMethod, ArgShortcut("j"), ArgDescription("Сформирует *.csr")]
