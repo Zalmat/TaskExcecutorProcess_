@@ -43,6 +43,7 @@ namespace TaskExcecutorProcess
             }
             return "OpenSSL - Не настроен, либо не установлен";
         }
+
 /// <summary>
 /// Проверка. ОС Windows?
 /// </summary>
@@ -51,19 +52,13 @@ namespace TaskExcecutorProcess
         {
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
-                string os = Environment.OSVersion.ToString();                
-                var lines = os.Split(Environment.NewLine);
-                var checkresponseOs = lines.Where(s => s.Contains("Windows NT 6.1")).FirstOrDefault();
-                if (!string.IsNullOrEmpty(checkresponseOs))
-                {
-                    return true;
-                }
-                else return false;
+                return true;
             }
             else return false;
         } 
         public static bool oSWindows = OSWindows();
-
+//По доке в W10 всегда есть pwsh = Ложь.
+//Если win powershell, если *nix то pwsh и баста.
         public static string NamePowerShellForOS(bool oSWindowsTrue)
         {
             if (oSWindowsTrue == true)
