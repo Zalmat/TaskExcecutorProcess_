@@ -73,7 +73,7 @@ namespace TaskExcecutorProcess
         private static string GetAliasKeyTool(string pathJksFile)
         {
             //выполняем скрипт powershell            
-            var output = Execute.ExecuteExternal("pwsh", $"-c \"echo '{passwCert}' | {KeytoolPath} -list -v -keystore {pathJksFile}\"");
+            var output = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"echo '{passwCert}' | {KeytoolPath} -list -v -keystore {pathJksFile}\"");
             //получаем по строкам
             var lines = output.Split(Environment.NewLine);            
             //находим строку алиаса
@@ -93,7 +93,7 @@ namespace TaskExcecutorProcess
             var csrFilePath = Path.ChangeExtension(pathJksFile, "csr");
 
             //выполняем скрипт powershell
-            var output = Execute.ExecuteExternal("pwsh", $"-c \"echo '{passwCert}' | {KeytoolPath} -certreq -alias '{aliasName}' -keystore '{pathJksFile}' -file '{csrFilePath}'\"");
+            var output = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"echo '{passwCert}' | {KeytoolPath} -certreq -alias '{aliasName}' -keystore '{pathJksFile}' -file '{csrFilePath}'\"");
 
             if (output.Contains("error"))
                 ConsoleHelper.ShowError(output);
@@ -113,13 +113,13 @@ namespace TaskExcecutorProcess
         {
             if (String.IsNullOrEmpty(pathCrt))
             {
-                var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl req -noout -modulus -in {pathCsr} | openssl md5\"");
+                var output = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"openssl req -noout -modulus -in {pathCsr} | openssl md5\"");
                 return output;
             }
             else
             {
-                var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl req -noout -modulus -in {pathCsr} | openssl md5\"");
-                var output2 = Execute.ExecuteExternal("pwsh", $"-c \"openssl x509 -noout -modulus -in {pathCrt} | openssl md5\"");
+                var output = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"openssl req -noout -modulus -in {pathCsr} | openssl md5\"");
+                var output2 = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"openssl x509 -noout -modulus -in {pathCrt} | openssl md5\"");
                 //По идее это УЖЕ не нужно, но бли-и-и-ин. 
                 var stdin1 = Regex.Match(output,"\\(stdin\\)= (\\w{32})");
                 /* 
@@ -143,11 +143,8 @@ namespace TaskExcecutorProcess
         public static void ConvertJksInPkcs12(string pathJksFile, string aliasName)
         {
             Console.WriteLine("Данные для формирования -.p12 получены = ОК\n");            
-            var patchP12File = Path.ChangeExtension(pathJksFile, "p12");
-            // Console.WriteLine($"echo {KeytoolPath} -importkeystore -srckeystore {pathJksFile} -destkeystore {patchP12File} -deststoretype PKCS12 -srcalias \"{aliasName}\" -srcstorepass {passwCert} -deststorepass {passwCert} -destkeypass {passwCert}");                                
-            //выполняем скрипт powershell
-            // var output = Execute.ExecuteExternal("pwsh", $"-c \"echo '{passwCert}' | {KeytoolPath} -list -v -keystore {NameFile(pathJksFile)}\"");
-            var output = Execute.ExecuteExternal  ("pwsh", $"-c \"echo '{passwCert}' | {KeytoolPath} -importkeystore -srckeystore {pathJksFile} -destkeystore {patchP12File} -deststoretype PKCS12 -srcalias \"{aliasName}\" -srcstorepass {passwCert} -deststorepass {passwCert} -destkeypass {passwCert}");
+            var patchP12File = Path.ChangeExtension(pathJksFile, "p12");            
+            var output = Execute.ExecuteExternal  (CheckingApp.namePowerShellForOS, $"-c \"echo '{passwCert}' | {KeytoolPath} -importkeystore -srckeystore {pathJksFile} -destkeystore {patchP12File} -deststoretype PKCS12 -srcalias \"{aliasName}\" -srcstorepass {passwCert} -deststorepass {passwCert} -destkeypass {passwCert}");
             //Console.WriteLine("Тестовые данные. Файл должен быть тут: " + patchP12File + "\n");
             if (output.Contains("error")) ConsoleHelper.ShowError(output);
             else if (System.IO.File.Exists(patchP12File))
@@ -165,7 +162,7 @@ namespace TaskExcecutorProcess
         public static void ConvertKeyPem()
         {
             CertTool.pathPemFile = Path.ChangeExtension(CertTool.pathP12File, "pem");
-            var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl pkcs12 -passin pass:{passwCert} -in {CertTool.pathP12File} -nodes -nocerts -out {CertTool.pathPemFile}  \"");
+            var output = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"openssl pkcs12 -passin pass:{passwCert} -in {CertTool.pathP12File} -nodes -nocerts -out {CertTool.pathPemFile}  \"");
                 if (output.Contains("error")) ConsoleHelper.ShowError(output); 
                  else if (System.IO.File.Exists(CertTool.pathPemFile))
             {
@@ -179,7 +176,7 @@ namespace TaskExcecutorProcess
         public static void pathNewKeyP12(string pathCRT)
         {
             var pathNewKeyP12 = Path.ChangeExtension(CertTool.pathPemFile, "new.p12");
-            var output = Execute.ExecuteExternal("pwsh", $"-c \"openssl pkcs12 -passout pass:{passwCert} -export -out {pathNewKeyP12} -inkey {CertTool.pathPemFile} -in {pathCRT}\"");
+            var output = Execute.ExecuteExternal(CheckingApp.namePowerShellForOS, $"-c \"openssl pkcs12 -passout pass:{passwCert} -export -out {pathNewKeyP12} -inkey {CertTool.pathPemFile} -in {pathCRT}\"");
             if (output.Contains("error")) ConsoleHelper.ShowError(output); 
                  else if (System.IO.File.Exists(pathNewKeyP12))
             {
