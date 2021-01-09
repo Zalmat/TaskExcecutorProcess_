@@ -1,8 +1,7 @@
 {
   "profiles": {
     "TaskExcecutorProcess": {
-      "commandName": "Project"
-      
+      "commandName": "Project"      
     }
   }
 }
