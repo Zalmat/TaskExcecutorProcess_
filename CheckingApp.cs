@@ -26,7 +26,7 @@ namespace TaskExcecutorProcess
                 string environmentPath = Environment.GetEnvironmentVariable("JAVA_HOME");
                 if (!string.IsNullOrEmpty(environmentPath))
                 {
-                    return environmentPath;
+                    return "";
                 }
                 return "JAVA_HOME - Не установлен.";
             }
@@ -57,8 +57,8 @@ namespace TaskExcecutorProcess
             else return false;
         } 
         public static bool oSWindows = OSWindows();
-//По доке в W10 всегда есть pwsh = Ложь.
-//Если win powershell, если *nix то pwsh и баста.
+//По доке в W10 всегда для вызова используется pwsh == Ложь.
+//Если win == powershell, если *nix то == pwsh и баста.
         public static string NamePowerShellForOS(bool oSWindowsTrue)
         {
             if (oSWindowsTrue == true)
