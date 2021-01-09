@@ -1,8 +1,8 @@
 {
   "profiles": {
     "TaskExcecutorProcess": {
-      "commandName": "Project",
-      "commandLineArgs": "GetCSR -j C:\\testData\\server.jks -p password"
+      "commandName": "Project"
+      
     }
   }
 }
