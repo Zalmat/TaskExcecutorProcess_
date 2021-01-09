@@ -262,4 +262,4 @@ __pycache__/
 *.pyc
 
 # Не мусорим тут между системами
-Properties/launchSettings.json
+/Properties/launchSettings.json
